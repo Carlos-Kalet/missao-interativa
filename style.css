@@ -1,0 +1,157 @@
+// ============ Função aleatória ============
+function aleatorio(lista) {
+  const posicao = Math.floor(Math.random() * lista.length);
+  return lista[posicao];
+}
+
+// ============ Nomes ============
+const nomes = [
+  "Aurora", "Ícaro", "Luna", "Théo", "Nina",
+  "Davi", "Sofia", "Ravi", "Lara", "Cauã",
+];
+
+const nome = aleatorio(nomes);
+
+// ============ Perguntas ============
+const perguntas = [
+  {
+    enunciado: "Você acorda em uma floresta misteriosa. O que faz primeiro?",
+    alternativas: [
+      {
+        texto: "Explorar o caminho iluminado pelo sol.",
+        afirmacao: [
+          "Você decidiu seguir a luz e encontrou uma trilha segura.",
+          "O caminho parecia tranquilo e isso te deu coragem.",
+        ],
+        proxima: 1,
+      },
+      {
+        texto: "Investigar o som estranho atrás das árvores.",
+        afirmacao: [
+          "O som te levou a um pequeno animal ferido, que você ajudou.",
+          "Curiosidade foi sua bússola nessa decisão.",
+        ],
+        proxima: 2,
+      },
+    ],
+  },
+  {
+    enunciado: "A trilha leva a uma ponte quebrada. E agora?",
+    alternativas: [
+      {
+        texto: "Procurar outro caminho pela margem do rio.",
+        afirmacao: [
+          "Você encontrou uma passagem escondida entre as pedras.",
+          "A paciência foi sua maior aliada.",
+        ],
+        proxima: null,
+      },
+      {
+        texto: "Tentar atravessar saltando pelas partes firmes.",
+        afirmacao: [
+          "Você arriscou e conseguiu chegar ao outro lado.",
+          "Coragem e sorte caminharam juntas.",
+        ],
+        proxima: null,
+      },
+    ],
+  },
+  {
+    enunciado: "O animal ferido te observa com gratidão. O que faz?",
+    alternativas: [
+      {
+        texto: "Cuidar dele até que se recupere.",
+        afirmacao: [
+          "Você ganhou um amigo fiel para o resto da jornada.",
+          "Cuidar do próximo revelou seu verdadeiro caráter.",
+        ],
+        proxima: null,
+      },
+      {
+        texto: "Seguir viagem, deixando-o em segurança.",
+        afirmacao: [
+          "Você seguiu em frente, mas sempre lembrará daquele olhar.",
+          "Saber a hora de partir também é uma escolha sábia.",
+        ],
+        proxima: null,
+      },
+    ],
+  },
+];
+
+// ============ Elementos do DOM ============
+const caixaPerguntas = document.querySelector(".caixa-perguntas");
+const caixaAlternativas = document.querySelector(".caixa-alternativas");
+const caixaResultado = document.querySelector(".caixa-resultado");
+const textoResultado = document.querySelector(".texto-resultado");
+const botaoJogarNovamente = document.querySelector(".novamente-btn");
+const telaInicial = document.querySelector(".tela-inicial");
+const botaoIniciar = document.querySelector(".iniciar-btn");
+
+let atual = 0;
+let historiaFinal = "";
+
+// ============ Funções ============
+function substituiNome() {
+  for (const pergunta of perguntas) {
+    pergunta.enunciado = pergunta.enunciado.replace(/você/gi, nome);
+  }
+}
+
+function mostraPergunta() {
+  if (atual >= perguntas.length) {
+    mostraResultado();
+    return;
+  }
+  const perguntaAtual = perguntas[atual];
+  caixaPerguntas.textContent = perguntaAtual.enunciado;
+  caixaAlternativas.innerHTML = "";
+
+  perguntaAtual.alternativas.forEach((alternativa) => {
+    const botao = document.createElement("button");
+    botao.textContent = alternativa.texto;
+    botao.addEventListener("click", () => respostaSelecionada(alternativa));
+    caixaAlternativas.appendChild(botao);
+  });
+}
+
+function respostaSelecionada(opcaoSelecionada) {
+  const afirmacao = aleatorio(opcaoSelecionada.afirmacao);
+  historiaFinal += afirmacao + " ";
+
+  if (opcaoSelecionada.proxima !== undefined && opcaoSelecionada.proxima !== null) {
+    atual = opcaoSelecionada.proxima;
+    mostraPergunta();
+  } else {
+    mostraResultado();
+  }
+}
+
+function mostraResultado() {
+  caixaPerguntas.textContent = `Fim da missão, ${nome}!`;
+  caixaAlternativas.innerHTML = "";
+  textoResultado.textContent = historiaFinal;
+  caixaResultado.classList.add("mostrar");
+
+  botaoJogarNovamente.removeEventListener("click", jogaNovamente);
+  botaoJogarNovamente.addEventListener("click", jogaNovamente);
+}
+
+function jogaNovamente() {
+  atual = 0;
+  historiaFinal = "";
+  caixaResultado.classList.remove("mostrar");
+  mostraPergunta();
+}
+
+function iniciaJogo() {
+  atual = 0;
+  historiaFinal = "";
+  telaInicial.style.display = "none";
+  caixaResultado.classList.remove("mostrar");
+  mostraPergunta();
+}
+
+// ============ Inicialização ============
+substituiNome();
+botaoIniciar.addEventListener("click", iniciaJogo);
